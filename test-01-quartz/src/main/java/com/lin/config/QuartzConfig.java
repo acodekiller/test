@@ -1,6 +1,9 @@
 package com.lin.config;
 
+import com.lin.listen.JobListenerSupportImpl;
 import com.sun.istack.internal.NotNull;
+import org.quartz.Job;
+import org.quartz.JobListener;
 import org.quartz.Scheduler;
 import org.quartz.ee.servlet.QuartzInitializerListener;
 import org.springframework.beans.factory.config.PropertiesFactoryBean;
@@ -44,9 +47,19 @@ public class QuartzConfig implements SchedulerFactoryBeanCustomizer {
     /*
      * 通过SchedulerFactoryBean获取Scheduler的实例
      */
+
+    //配置Job监听器
     @Bean
-    public Scheduler scheduler() throws IOException {
-        return schedulerFactoryBean().getScheduler();
+    public JobListener jobListener(){
+        JobListener jobListener = new JobListenerSupportImpl();
+        return jobListener;
+    }
+
+    @Bean
+    public Scheduler scheduler() throws Exception {
+        Scheduler scheduler = schedulerFactoryBean().getScheduler();
+        scheduler.getListenerManager().addJobListener(jobListener());
+        return scheduler;
     }
 
     /**
